@@ -1,0 +1,19 @@
+# Postgres data folder (rebuild with: bip-agent/scripts/kb-db.sh init && python3 -m bip_agent kb setup)
+pgdata/
+# Per-table crawl files (combined into receivables-metadata/catalog.json)
+receivables-metadata/tables/
+# Logs and generated test-run output
+*.log
+bip-agent/out/
+bip-agent/out14/
+bip-agent/out_v2/
+bip-agent/out_v3/
+bip-agent/out_kb/
+bip-agent/out_customer/tca_customers/
+# Python
+__pycache__/
+*.pyc
+.venv/
+# macOS
+.DS_Store
+receivables-metadata/receivables_catalog.json

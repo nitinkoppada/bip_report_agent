@@ -1,0 +1,157 @@
+{
+  "report_name": "AR_OPEN_INVOICES_BY_CUSTOMER",
+  "title": "Open Invoices by Customer",
+  "description": "Every open invoice, debit memo and chargeback installment per customer with original, applied, credited, adjusted and remaining amounts.",
+  "sql": "SELECT hp.PARTY_NAME                              AS CUSTOMER_NAME,\n       hca.ACCOUNT_NUMBER                         AS ACCOUNT_NUMBER,\n       rct.TRX_NUMBER                             AS TRX_NUMBER,\n       rct.TRX_DATE                               AS TRX_DATE,\n       ctt.NAME                                   AS TRX_TYPE,\n       rtt.NAME                                   AS PAYMENT_TERMS,\n       ps.TERMS_SEQUENCE_NUMBER                   AS INSTALLMENT,\n       ps.DUE_DATE                                AS DUE_DATE,\n       rct.PURCHASE_ORDER                         AS PURCHASE_ORDER,\n       ps.INVOICE_CURRENCY_CODE                   AS CURRENCY_CODE,\n       ps.AMOUNT_DUE_ORIGINAL                     AS ORIGINAL_AMOUNT,\n       ps.AMOUNT_APPLIED                          AS AMOUNT_APPLIED,\n       ps.AMOUNT_CREDITED                         AS AMOUNT_CREDITED,\n       ps.AMOUNT_ADJUSTED                         AS AMOUNT_ADJUSTED,\n       ps.AMOUNT_DUE_REMAINING                    AS AMOUNT_DUE_REMAINING,\n       GREATEST(TRUNC(SYSDATE) - TRUNC(ps.DUE_DATE), 0) AS DAYS_OVERDUE\nFROM   AR_PAYMENT_SCHEDULES_ALL ps\nJOIN   RA_CUSTOMER_TRX_ALL rct   ON rct.CUSTOMER_TRX_ID = ps.CUSTOMER_TRX_ID\nJOIN   HZ_CUST_ACCOUNTS hca      ON hca.CUST_ACCOUNT_ID = ps.CUSTOMER_ID\nJOIN   HZ_PARTIES hp             ON hp.PARTY_ID = hca.PARTY_ID\nJOIN   RA_CUST_TRX_TYPES_ALL ctt ON ctt.CUST_TRX_TYPE_SEQ_ID = rct.CUST_TRX_TYPE_SEQ_ID\nLEFT JOIN RA_TERMS_TL rtt        ON rtt.TERM_ID = ps.TERM_ID\n                                AND rtt.LANGUAGE = USERENV('LANG')\nWHERE  ps.STATUS = 'OP'\nAND    ps.CLASS IN ('INV', 'DM', 'CB')\nAND    (:P_ORG_ID IS NULL OR ps.ORG_ID = :P_ORG_ID)\nAND    (:P_CUSTOMER_NUMBER IS NULL OR hca.ACCOUNT_NUMBER = :P_CUSTOMER_NUMBER)\nAND    (:P_DUE_DATE_TO IS NULL OR TRUNC(ps.DUE_DATE) <= TRUNC(:P_DUE_DATE_TO))\nORDER BY hp.PARTY_NAME, hca.ACCOUNT_NUMBER, ps.DUE_DATE, rct.TRX_NUMBER, ps.TERMS_SEQUENCE_NUMBER",
+  "parameters": [
+    {
+      "name": "P_ORG_ID",
+      "label": "Business Unit ID",
+      "data_type": "number",
+      "default_value": "",
+      "required": false
+    },
+    {
+      "name": "P_CUSTOMER_NUMBER",
+      "label": "Customer Account Number",
+      "data_type": "string",
+      "default_value": "",
+      "required": false
+    },
+    {
+      "name": "P_DUE_DATE_TO",
+      "label": "Due On or Before",
+      "data_type": "date",
+      "default_value": "",
+      "required": false
+    }
+  ],
+  "columns": [
+    {
+      "name": "CUSTOMER_NAME",
+      "label": "Customer",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "ACCOUNT_NUMBER",
+      "label": "Account Number",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "TRX_NUMBER",
+      "label": "Invoice",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_DATE",
+      "label": "Invoice Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_TYPE",
+      "label": "Type",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "PAYMENT_TERMS",
+      "label": "Terms",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "INSTALLMENT",
+      "label": "Installment",
+      "data_type": "number",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "DUE_DATE",
+      "label": "Due Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "PURCHASE_ORDER",
+      "label": "PO Number",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "CURRENCY_CODE",
+      "label": "Currency",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "ORIGINAL_AMOUNT",
+      "label": "Original",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "AMOUNT_APPLIED",
+      "label": "Applied",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "AMOUNT_CREDITED",
+      "label": "Credited",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "AMOUNT_ADJUSTED",
+      "label": "Adjusted",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "AMOUNT_DUE_REMAINING",
+      "label": "Remaining",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DAYS_OVERDUE",
+      "label": "Days Overdue",
+      "data_type": "number",
+      "is_break": false,
+      "total": false
+    }
+  ],
+  "tables_used": [
+    "AR_PAYMENT_SCHEDULES_ALL",
+    "RA_CUSTOMER_TRX_ALL",
+    "HZ_CUST_ACCOUNTS",
+    "HZ_PARTIES",
+    "RA_CUST_TRX_TYPES_ALL",
+    "RA_TERMS_TL"
+  ],
+  "assumptions": [
+    "'Open' means a payment schedule with STATUS = 'OP'; one row per installment, so split-term invoices show several rows.",
+    "Only invoices, debit memos and chargebacks (CLASS INV, DM, CB); open credit memos and receipts are excluded.",
+    "Days overdue is measured from today (SYSDATE), never negative.",
+    "Payment terms name comes from RA_TERMS_TL in the session language."
+  ]
+}

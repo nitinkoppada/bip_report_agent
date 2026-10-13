@@ -1,0 +1,234 @@
+[
+ {
+  "q": "AR aging by customer as of a date with 30/60/90 buckets",
+  "expect": [
+   "AR_PAYMENT_SCHEDULES_ALL",
+   "HZ_CUST_ACCOUNTS",
+   "HZ_PARTIES"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "open invoices, debit memos and chargebacks by customer with remaining amounts",
+  "expect": [
+   "AR_PAYMENT_SCHEDULES_ALL",
+   "RA_CUSTOMER_TRX_ALL",
+   "HZ_CUST_ACCOUNTS"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "receipts applied to invoices in an apply date range",
+  "expect": [
+   "AR_RECEIVABLE_APPLICATIONS_ALL",
+   "AR_CASH_RECEIPTS_ALL",
+   "RA_CUSTOMER_TRX_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "adjustments by activity name in a GL date range",
+  "expect": [
+   "AR_ADJUSTMENTS_ALL",
+   "AR_RECEIVABLES_TRX_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "money customers still owe us, by how late it is",
+  "expect": [
+   "AR_PAYMENT_SCHEDULES_ALL",
+   "HZ_CUST_ACCOUNTS"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "cash we received but have not matched to invoices yet",
+  "expect": [
+   "AR_CASH_RECEIPTS_ALL",
+   "AR_RECEIVABLE_APPLICATIONS_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "write-offs of small balances approved last month",
+  "expect": [
+   "AR_ADJUSTMENTS_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "bill-to customer address printed on each invoice",
+  "expect": [
+   "RA_CUSTOMER_TRX_ALL",
+   "HZ_CUST_SITE_USES_ALL",
+   "HZ_LOCATIONS"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "invoice lines with item description, quantity and unit price",
+  "expect": [
+   "RA_CUSTOMER_TRX_LINES_ALL",
+   "RA_CUSTOMER_TRX_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "revenue distribution accounts for each invoice line",
+  "expect": [
+   "RA_CUST_TRX_LINE_GL_DIST_ALL",
+   "RA_CUSTOMER_TRX_LINES_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "credit memos issued against invoices this quarter",
+  "expect": [
+   "RA_CUSTOMER_TRX_ALL",
+   "RA_CUST_TRX_TYPES_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "receipts by receipt method and bank deposit date",
+  "expect": [
+   "AR_CASH_RECEIPTS_ALL",
+   "AR_RECEIPT_METHODS"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "reversed receipts and why they were reversed",
+  "expect": [
+   "AR_CASH_RECEIPTS_ALL",
+   "AR_CASH_RECEIPT_HISTORY_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "payment terms and due dates of invoice installments",
+  "expect": [
+   "AR_PAYMENT_SCHEDULES_ALL",
+   "RA_TERMS_B"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "customers assigned to each collector",
+  "expect": [
+   "AR_COLLECTORS",
+   "HZ_CUST_ACCOUNTS"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "invoices currently in dispute with the disputed amount",
+  "expect": [
+   "AR_PAYMENT_SCHEDULES_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "transactions imported from each transaction source",
+  "expect": [
+   "RA_CUSTOMER_TRX_ALL",
+   "RA_BATCH_SOURCES_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "early payment discounts customers took on receipts",
+  "expect": [
+   "AR_RECEIVABLE_APPLICATIONS_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "how much of each receipt is still on account or unidentified",
+  "expect": [
+   "AR_RECEIVABLE_APPLICATIONS_ALL",
+   "AR_CASH_RECEIPTS_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "subledger accounting lines for receipts",
+  "expect": [
+   "AR_DISTRIBUTIONS_ALL",
+   "AR_CASH_RECEIPTS_ALL"
+  ],
+  "set": "core"
+ },
+ {
+  "q": "late fees charged to customers for paying slowly",
+  "expect": [
+   "AR_INTEREST_HEADERS_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "history of statements sent to each customer",
+  "expect": [
+   "AR_STATEMENTS_HISTORY_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "bank lockbox setup used to import payments",
+  "expect": [
+   "AR_LOCKBOXES_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "revenue that was deferred and why",
+  "expect": [
+   "AR_DEFERRED_LINES_ALL",
+   "AR_DEFERRAL_REASONS"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "rules that automatically match payments to open items",
+  "expect": [
+   "AR_AUTOCASH_RULES"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "remittance advice details sent by payers",
+  "expect": [
+   "AR_REMITTANCE_ADVICES_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "where customers should send their payments",
+  "expect": [
+   "AR_REMIT_TO_LOCS_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "salesperson credit split on each sale",
+  "expect": [
+   "RA_CUST_TRX_LINE_SALESREPS_ALL"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "comments and notes recorded against a transaction",
+  "expect": [
+   "AR_NOTES"
+  ],
+  "set": "paraphrase"
+ },
+ {
+  "q": "manual changes to recognized revenue",
+  "expect": [
+   "AR_REVENUE_ADJUSTMENTS_ALL"
+  ],
+  "set": "paraphrase"
+ }
+]

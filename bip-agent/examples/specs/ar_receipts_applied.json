@@ -1,0 +1,151 @@
+{
+  "report_name": "AR_RECEIPTS_APPLIED",
+  "title": "Receipts Applied to Transactions",
+  "description": "Cash receipt applications to invoices and other transactions within an application date range, grouped by receipt.",
+  "sql": "SELECT acr.RECEIPT_NUMBER                         AS RECEIPT_NUMBER,\n       acr.RECEIPT_DATE                           AS RECEIPT_DATE,\n       arm.NAME                                   AS RECEIPT_METHOD,\n       hp.PARTY_NAME                              AS CUSTOMER_NAME,\n       hca.ACCOUNT_NUMBER                         AS ACCOUNT_NUMBER,\n       acr.CURRENCY_CODE                          AS RECEIPT_CURRENCY,\n       acr.AMOUNT                                 AS RECEIPT_AMOUNT,\n       rct.TRX_NUMBER                             AS APPLIED_TRX_NUMBER,\n       rct.TRX_DATE                               AS APPLIED_TRX_DATE,\n       rct.INVOICE_CURRENCY_CODE                  AS TRX_CURRENCY,\n       ara.APPLY_DATE                             AS APPLY_DATE,\n       ara.GL_DATE                                AS GL_DATE,\n       ara.AMOUNT_APPLIED                         AS AMOUNT_APPLIED,\n       NVL(ara.EARNED_DISCOUNT_TAKEN, 0)\n         + NVL(ara.UNEARNED_DISCOUNT_TAKEN, 0)    AS DISCOUNT_TAKEN\nFROM   AR_RECEIVABLE_APPLICATIONS_ALL ara\nJOIN   AR_CASH_RECEIPTS_ALL acr  ON acr.CASH_RECEIPT_ID = ara.CASH_RECEIPT_ID\nJOIN   RA_CUSTOMER_TRX_ALL rct   ON rct.CUSTOMER_TRX_ID = ara.APPLIED_CUSTOMER_TRX_ID\nLEFT JOIN AR_RECEIPT_METHODS arm ON arm.RECEIPT_METHOD_ID = acr.RECEIPT_METHOD_ID\nLEFT JOIN HZ_CUST_ACCOUNTS hca   ON hca.CUST_ACCOUNT_ID = acr.PAY_FROM_CUSTOMER\nLEFT JOIN HZ_PARTIES hp          ON hp.PARTY_ID = hca.PARTY_ID\nWHERE  ara.APPLICATION_TYPE = 'CASH'\nAND    ara.STATUS = 'APP'\nAND    ara.DISPLAY = 'Y'\nAND    TRUNC(ara.APPLY_DATE) BETWEEN TRUNC(:P_FROM_DATE) AND TRUNC(:P_TO_DATE)\nAND    (:P_ORG_ID IS NULL OR ara.ORG_ID = :P_ORG_ID)\nAND    (:P_CUSTOMER_NUMBER IS NULL OR hca.ACCOUNT_NUMBER = :P_CUSTOMER_NUMBER)\nORDER BY acr.RECEIPT_NUMBER, acr.RECEIPT_DATE, arm.NAME, hp.PARTY_NAME, hca.ACCOUNT_NUMBER, ara.APPLY_DATE, rct.TRX_NUMBER",
+  "parameters": [
+    {
+      "name": "P_FROM_DATE",
+      "label": "Apply Date From",
+      "data_type": "date",
+      "default_value": "",
+      "required": true
+    },
+    {
+      "name": "P_TO_DATE",
+      "label": "Apply Date To",
+      "data_type": "date",
+      "default_value": "{$SYSDATE()$}",
+      "required": true
+    },
+    {
+      "name": "P_ORG_ID",
+      "label": "Business Unit ID",
+      "data_type": "number",
+      "default_value": "",
+      "required": false
+    },
+    {
+      "name": "P_CUSTOMER_NUMBER",
+      "label": "Customer Account Number",
+      "data_type": "string",
+      "default_value": "",
+      "required": false
+    }
+  ],
+  "columns": [
+    {
+      "name": "RECEIPT_NUMBER",
+      "label": "Receipt",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "RECEIPT_DATE",
+      "label": "Receipt Date",
+      "data_type": "date",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "RECEIPT_METHOD",
+      "label": "Method",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "CUSTOMER_NAME",
+      "label": "Customer",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "ACCOUNT_NUMBER",
+      "label": "Account Number",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "RECEIPT_CURRENCY",
+      "label": "Receipt Currency",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "RECEIPT_AMOUNT",
+      "label": "Receipt Amount",
+      "data_type": "number",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "APPLIED_TRX_NUMBER",
+      "label": "Applied To",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "APPLIED_TRX_DATE",
+      "label": "Transaction Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_CURRENCY",
+      "label": "Transaction Currency",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "APPLY_DATE",
+      "label": "Apply Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "GL_DATE",
+      "label": "GL Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "AMOUNT_APPLIED",
+      "label": "Amount Applied",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DISCOUNT_TAKEN",
+      "label": "Discount",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    }
+  ],
+  "tables_used": [
+    "AR_RECEIVABLE_APPLICATIONS_ALL",
+    "AR_CASH_RECEIPTS_ALL",
+    "RA_CUSTOMER_TRX_ALL",
+    "AR_RECEIPT_METHODS",
+    "HZ_CUST_ACCOUNTS",
+    "HZ_PARTIES"
+  ],
+  "assumptions": [
+    "Only receipt applications (APPLICATION_TYPE = 'CASH') with STATUS = 'APP'; unapplied, on-account and activity applications are excluded.",
+    "DISPLAY = 'Y' keeps the current application row, so applications that were later reversed or reapplied are not shown twice.",
+    "Date range filters the application date (APPLY_DATE), not the receipt date or GL date.",
+    "Customer is the receipt's paying customer (PAY_FROM_CUSTOMER); a receipt applied across customers shows under its payer.",
+    "AMOUNT_APPLIED is in the transaction currency; cross-currency applications may differ from the receipt currency."
+  ]
+}

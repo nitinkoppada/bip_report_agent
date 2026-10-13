@@ -1,0 +1,149 @@
+{
+  "report_name": "AR_AGING_BY_CUSTOMER",
+  "title": "Receivables Aging by Customer",
+  "description": "Open receivables per customer with days past due and current, 1-30, 31-60, 61-90 and over-90 day buckets as of a date.",
+  "sql": "SELECT hp.PARTY_NAME                                   AS CUSTOMER_NAME,\n       hca.ACCOUNT_NUMBER                              AS ACCOUNT_NUMBER,\n       ps.TRX_NUMBER                                   AS TRX_NUMBER,\n       ctt.NAME                                        AS TRX_TYPE,\n       ps.CLASS                                        AS TRX_CLASS,\n       ps.TRX_DATE                                     AS TRX_DATE,\n       ps.DUE_DATE                                     AS DUE_DATE,\n       ps.INVOICE_CURRENCY_CODE                        AS CURRENCY_CODE,\n       TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE)       AS DAYS_PAST_DUE,\n       ps.AMOUNT_DUE_REMAINING                         AS AMOUNT_DUE_REMAINING,\n       CASE WHEN TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE) <= 0\n            THEN ps.AMOUNT_DUE_REMAINING ELSE 0 END    AS CURRENT_AMOUNT,\n       CASE WHEN TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE) BETWEEN 1 AND 30\n            THEN ps.AMOUNT_DUE_REMAINING ELSE 0 END    AS DAYS_1_30,\n       CASE WHEN TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE) BETWEEN 31 AND 60\n            THEN ps.AMOUNT_DUE_REMAINING ELSE 0 END    AS DAYS_31_60,\n       CASE WHEN TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE) BETWEEN 61 AND 90\n            THEN ps.AMOUNT_DUE_REMAINING ELSE 0 END    AS DAYS_61_90,\n       CASE WHEN TRUNC(:P_AS_OF_DATE) - TRUNC(ps.DUE_DATE) > 90\n            THEN ps.AMOUNT_DUE_REMAINING ELSE 0 END    AS DAYS_OVER_90\nFROM   AR_PAYMENT_SCHEDULES_ALL ps\nJOIN   HZ_CUST_ACCOUNTS hca      ON hca.CUST_ACCOUNT_ID = ps.CUSTOMER_ID\nJOIN   HZ_PARTIES hp             ON hp.PARTY_ID = hca.PARTY_ID\nLEFT JOIN RA_CUST_TRX_TYPES_ALL ctt ON ctt.CUST_TRX_TYPE_SEQ_ID = ps.CUST_TRX_TYPE_SEQ_ID\nWHERE  ps.STATUS = 'OP'\nAND    ps.CLASS IN ('INV', 'DM', 'CB', 'CM')\nAND    TRUNC(ps.GL_DATE) <= TRUNC(:P_AS_OF_DATE)\nAND    (:P_ORG_ID IS NULL OR ps.ORG_ID = :P_ORG_ID)\nAND    (:P_CUSTOMER_NUMBER IS NULL OR hca.ACCOUNT_NUMBER = :P_CUSTOMER_NUMBER)\nORDER BY hp.PARTY_NAME, hca.ACCOUNT_NUMBER, ps.DUE_DATE, ps.TRX_NUMBER",
+  "parameters": [
+    {
+      "name": "P_AS_OF_DATE",
+      "label": "As of Date",
+      "data_type": "date",
+      "default_value": "{$SYSDATE()$}",
+      "required": true
+    },
+    {
+      "name": "P_ORG_ID",
+      "label": "Business Unit ID",
+      "data_type": "number",
+      "default_value": "",
+      "required": false
+    },
+    {
+      "name": "P_CUSTOMER_NUMBER",
+      "label": "Customer Account Number",
+      "data_type": "string",
+      "default_value": "",
+      "required": false
+    }
+  ],
+  "columns": [
+    {
+      "name": "CUSTOMER_NAME",
+      "label": "Customer",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "ACCOUNT_NUMBER",
+      "label": "Account Number",
+      "data_type": "string",
+      "is_break": true,
+      "total": false
+    },
+    {
+      "name": "TRX_NUMBER",
+      "label": "Transaction",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_TYPE",
+      "label": "Type",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_CLASS",
+      "label": "Class",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "TRX_DATE",
+      "label": "Transaction Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "DUE_DATE",
+      "label": "Due Date",
+      "data_type": "date",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "CURRENCY_CODE",
+      "label": "Currency",
+      "data_type": "string",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "DAYS_PAST_DUE",
+      "label": "Days Past Due",
+      "data_type": "number",
+      "is_break": false,
+      "total": false
+    },
+    {
+      "name": "AMOUNT_DUE_REMAINING",
+      "label": "Balance Due",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "CURRENT_AMOUNT",
+      "label": "Current",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DAYS_1_30",
+      "label": "1-30",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DAYS_31_60",
+      "label": "31-60",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DAYS_61_90",
+      "label": "61-90",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    },
+    {
+      "name": "DAYS_OVER_90",
+      "label": "Over 90",
+      "data_type": "number",
+      "is_break": false,
+      "total": true
+    }
+  ],
+  "tables_used": [
+    "AR_PAYMENT_SCHEDULES_ALL",
+    "HZ_CUST_ACCOUNTS",
+    "HZ_PARTIES",
+    "RA_CUST_TRX_TYPES_ALL"
+  ],
+  "assumptions": [
+    "Aging uses the current balance (STATUS = 'OP', AMOUNT_DUE_REMAINING), so it is an aging of today's open items bucketed against the as-of date, not a historical as-of balance; a true historical aging must back out applications and adjustments dated after the as-of date.",
+    "Includes invoices, debit memos, chargebacks and on-account credit memos (CLASS INV, DM, CB, CM); unapplied and on-account receipts (CLASS PMT) are excluded.",
+    "Items are included only if their GL date is on or before the as-of date.",
+    "Buckets are fixed at current, 1-30, 31-60, 61-90 and over 90 days past due rather than read from an AR_AGING_BUCKETS definition.",
+    "Amounts are in transaction currency; no conversion to ledger currency."
+  ]
+}
